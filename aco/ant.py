@@ -1,12 +1,12 @@
 import numpy as np
 
 class Ant:
-    def __init__(self, a, b, num_vertices, edges):
+    def __init__(self, a, b, num_vertices, graph):
         # weights a and b balances decision of ant
         self.a = a
         self.b = b
         self.n = num_vertices
-        self.edges = edges  # nxn matrix
+        self.graph = graph  # nxn matrix
         self.reset()
     
     def reset(self):
@@ -25,8 +25,8 @@ class Ant:
         '''
         probs = []
         for v in self.unvisited:
-            edge = self.edges[u][v]
-            prob = pow(edge.pheromone, self.a) / pow(edge.weight, self.b)
+            prob = pow(self.graph.pheromones[u][v], self.a) /\
+                     pow(self.graph.weights[u][v], self.b)
             probs.append(prob)
 
         probs = np.array(probs)
@@ -39,28 +39,40 @@ class Ant:
         for i in range(self.n - 4):
             x, y, z, w = self.tour[i], self.tour[i+1],\
                         self.tour[i+2], self.tour[i+3]
-            if self.edges[x][z].weight + self.edges[y][w].weight <\
-                self.edges[x][y].weight + self.edges[z][w].weight:
+            if self.graph.weights[x][z] + self.graph.weights[y][w] <\
+                self.graph.weights[x][y] + self.graph.weights[z][w]:
                 self.tour[i+1], self.tour[i+2] = self.tour[i+2], self.tour[i+1]
-                self.total_distance -= (self.edges[x][y].weight + self.edges[z][w].weight)
-                self.total_distance += (self.edges[x][z].weight + self.edges[y][w].weight)
+                self.total_distance -= (self.graph.weights[x][y] + self.graph.weights[z][w])
+                self.total_distance += (self.graph.weights[x][z] + self.graph.weights[y][w])
     
     def fix_tour_5(self):
         for i in range(self.n - 5):
             x, y, z, u, v = self.tour[i], self.tour[i+1],\
                         self.tour[i+2], self.tour[i+3], self.tour[i+4]
-            path1 = self.edges[x][y].weight + self.edges[y][z].weight+\
-                    self.edges[z][u].weight + self.edges[u][v].weight
-            path2 = self.edges[x][y].weight + self.edges[y][u].weight+\
-                    self.edges[u][z].weight + self.edges[z][v].weight
-            path3 = self.edges[x][z].weight + self.edges[z][y].weight+\
-                    self.edges[y][u].weight + self.edges[u][v].weight
-            path4 = self.edges[x][z].weight + self.edges[z][u].weight+\
-                    self.edges[u][y].weight + self.edges[y][v].weight
-            path5 = self.edges[x][u].weight + self.edges[u][z].weight+\
-                    self.edges[z][y].weight + self.edges[y][v].weight
-            path6 = self.edges[x][u].weight + self.edges[u][y].weight+\
-                    self.edges[y][z].weight + self.edges[z][v].weight
+            xy, xz, xu = self.graph.weights[x][y], self.graph.weights[x][z],\
+                            self.graph.weights[x][u]
+            yz, yu, yv = self.graph.weights[y][z], self.graph.weights[y][u],\
+                            self.graph.weights[y][v]
+            zu, zv, uv = self.graph.weights[z][u], self.graph.weights[z][v],\
+                            self.graph.weights[v][u]
+            # path1 = self.graph.weights[x][y] + self.graph.weights[y][z]+\
+            #         self.graph.weights[z][u] + self.graph.weights[u][v]
+            # path2 = self.graph.weights[x][y] + self.graph.weights[y][u]+\
+            #         self.graph.weights[u][z] + self.graph.weights[z][v]
+            # path3 = self.graph.weights[x][z] + self.graph.weights[z][y]+\
+            #         self.graph.weights[y][u] + self.graph.weights[u][v]
+            # path4 = self.graph.weights[x][z] + self.graph.weights[z][u]+\
+            #         self.graph.weights[u][y] + self.graph.weights[y][v]
+            # path5 = self.graph.weights[x][u] + self.graph.weights[u][z]+\
+            #         self.graph.weights[z][y] + self.graph.weights[y][v]
+            # path6 = self.graph.weights[x][u] + self.graph.weights[u][y]+\
+            #         self.graph.weights[y][z] + self.graph.weights[z][v]
+            path1 = xy + yz + zu + uv
+            path2 = xy + yu + zu + zv
+            path3 = xz + yz + yu + uv
+            path4 = xz + zu + yu + yv
+            path5 = xu + zu + yz + yv
+            path6 = xu + yu + yz + zv
             poss_paths = [path1, path2, path3, path4, path5, path6]
             min_path = min(poss_paths)
             if min_path == path1:
@@ -89,7 +101,7 @@ class Ant:
         for _ in range(self.n - 1):
             v = self.select_edge(u)
             self.tour.append(v)
-            self.total_distance += self.edges[u][v].weight
+            self.total_distance += self.graph.weights[u][v]
             u = v
         
         self.fix_tour_5()
@@ -101,5 +113,5 @@ class Ant:
         deposit = Q / self.total_distance
         for i in range(self.n - 1):
             u, v = self.tour[i], self.tour[i+1]
-            self.edges[v][u].pheromone += deposit
-            self.edges[u][v].pheromone += deposit
+            self.graph.pheromones[v][u] += deposit
+            self.graph.pheromones[u][v] += deposit

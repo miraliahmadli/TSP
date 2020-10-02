@@ -8,7 +8,7 @@ while not root_dir.endswith("TSP"):
   root_dir = os.path.dirname(root_dir)
 sys.path.append(root_dir)
 
-from graph.graph import Vertex, Edge
+from graph.graph import Vertex, Edge, Graph
 from aco.aco import ACO
 
 
@@ -30,7 +30,6 @@ def parse_arguments():
 def read_data(file_path): 
     # Building Graph
     # Vertices
-    print("Preparing Vertices")
     vertices = []
     with open(file_path, "r") as f:
         #coordinates start from the 7th line, end with EOF
@@ -44,20 +43,19 @@ def read_data(file_path):
                 vertices.append(v)
     
     # Edges
-    n = len(vertices)
-    edges = [[Edge(vertices[i], vertices[j]) 
-                for i in range(n)] 
-                    for j in range(n)]
-    graph = [vertices, edges]
-    return graph
+    # n = len(vertices)
+    # edges = [[Edge(vertices[i], vertices[j]) 
+    #             for i in range(n)] 
+    #                 for j in range(n)]
+    # graph = [vertices, edges]
+    return vertices
 
 
 def read_solution(file_path):
     tour = []
     with open(file_path, "r") as f:
-        #coordinates start from the 7th line, end with EOF
-        for _ in range(4):
-            f.readline()
+        # for _ in range(4):
+        #     f.readline()
         for line in f:
             if "-" in line:
                 break
@@ -68,8 +66,8 @@ def read_solution(file_path):
 
 def main(args):
     print("Reading data and building graph")
-    graph = read_data(args.p)
-    # graph = Graph(vertices)
+    vertices = read_data(args.p)
+    graph = Graph(vertices)
     print(f"{args.mode} algorithm")
     if args.mode == "ACO":
         aco = ACO(graph=graph,
@@ -86,6 +84,9 @@ def main(args):
         print(f"Best distance by ACO : {aco.best_distance:.2f}")
         aco.plot()
         # Solutions
+        # if you have optimal/better solution for x.tsp, 
+        # put it in xsol.tsp and visualize using this code 
+
         # f_path = args.p.replace(".tsp", "sol.tsp")
         # best_tour = read_solution(f_path)
         # aco.best_tour = best_tour
