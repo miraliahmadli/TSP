@@ -1,5 +1,7 @@
 import math
 import random
+
+from tqdm import tqdm
 from matplotlib import pyplot as plt
 
 from aco.ant import Ant
@@ -45,17 +47,26 @@ class ACO:
         goal_factor = 0.5
         incr_rate = 0.4 / self.iters
         for it in range(self.iters):
+            tqdm_batch = tqdm(total=len(self.colony), dynamic_ncols=True)
             for ant_id, ant in enumerate(self.colony):
                 ant.complete_tour()
                 if ant.total_distance < self.best_distance:
                     self.best_distance = ant.total_distance
                     self.best_tour = ant.tour[:]
-                    print(f"Step {it}, Ant {ant_id}, Best distance {self.best_distance:.2f}")
-                    self.write_data(f'solutions/solution_{it}_{ant_id}')
+                    # print(f"Step {it}, Ant {ant_id}, Best distance {self.best_distance:.2f}")
+                    self.write_data(f'solutions/solution.csv')
+
+                tqdm_update = "Ant={0:04d},ant_dist={1:08.2f}".format(ant_id+1, ant.total_distance)
+                tqdm_batch.set_postfix_str(tqdm_update)
+                tqdm_batch.update()
+
             self.update_pheromone()
             for ant in self.colony:
                 ant.update_used_pheromones(self.best_distance * goal_factor)
             goal_factor += incr_rate
+
+            tqdm_batch.close()
+            print(f"Iteration={it+1}, best_dist={self.best_distance}")
 
         self.save_results()
 
