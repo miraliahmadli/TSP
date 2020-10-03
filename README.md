@@ -1,7 +1,7 @@
 # TSP
 -------------------  
 ## Running guide:
-__Note__: Repository was testes using Python3.7 and latest packages in requirements.txt. Make sure you don't have older Python version and you don't have cached the old versions of packages, as some parts may not work.
+__Note__: Repository was tested using Python3.7 and latest packages in requirements.txt. Make sure you don't have older Python version and you don't have cached the old versions of packages, as some parts may not work.
 
 + It is recommended to use virtual environment
   -  Create and activate virtual environment:  
