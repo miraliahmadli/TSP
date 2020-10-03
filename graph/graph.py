@@ -10,7 +10,7 @@ def dist2D(u,  v):
 
 class Vertex:
     '''
-    Index and Location of vertex
+    Index and 2D Location of vertex
     '''
     def __init__(self, idx, x, y):
         self.index = idx
@@ -18,20 +18,24 @@ class Vertex:
         self.y = y
 
 
-class Edge:
-    '''
-    Edge has 4 arguments:
-    u and v denotes enpoints of edge
-    weight is the distance between vertex u and vertex v
-    pheromone denotes pheromone level of edge and will be updated after each iteration
-    '''
-    def __init__(self, u, v, pheromone = 1.):
-        self.u = u
-        self.v = v
-        self.weight = dist2D(u, v)
-        self.pheromone = pheromone
-
 class Graph:
+    '''
+    Graph object that contains all of the necessary information 
+    about given given graph (vertices and edges)
+
+    Note:
+        As all of the deposit pheromone will be set to some value
+        less than one, initial pheromone level is set to one
+
+    Attributes:
+        n (int): number of vertices in graph
+        vertices (list[Vertex]): list of Vertex objects
+        pheromones (ndarray): n by n numpy array that contains
+            information about pheromone levels of edges
+        weights (ndarray): n by n numpy array that contains 
+            distance between vertices
+    '''
+
     def __init__(self, vertices):
         self.n = len(vertices)
         self.vertices = vertices

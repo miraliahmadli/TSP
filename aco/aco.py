@@ -9,12 +9,19 @@ from aco.ant import Ant
 class ACO:
     '''
     Ant Colony Optimization solver for TSP
+    Args:
+        graph (Graph): graph that contains information
+                about vertices and edges (pheromone levels and weights)
+        colony_size (int): Colony size, number of ants in the ACO
+        a (float): Hyperparameter that balances importance of pheromone of edges
+        b (float): Hyperparameter that balances importance of weight of edges
+        evaporation_rate (float): Evaporation rate of pheromone after each iteration
+        iters (int): Number of iterations to make
     '''
     def __init__(self, graph, 
                 colony_size=10, 
-                a=1.0, b=3.0,
+                a=1.0, b=1.0,
                 evaporation_rate=0.1, 
-                initial_pheromone=1.0, 
                 iters=100):
         self.graph = graph
         self.n = self.graph.n
@@ -31,6 +38,9 @@ class ACO:
         self.best_distance = float("inf")
 
     def get_tour_distance(self, tour):
+        '''
+        Calculate distance for given tour
+        '''
         distance = 0.0
         for i in range(self.n - 1):
             u, v = tour[i], tour[i+1]
@@ -53,7 +63,6 @@ class ACO:
                 if ant.total_distance < self.best_distance:
                     self.best_distance = ant.total_distance
                     self.best_tour = ant.tour[:]
-                    # print(f"Step {it}, Ant {ant_id}, Best distance {self.best_distance:.2f}")
                     self.write_data(f'solutions/solution.csv')
 
                 tqdm_update = "Ant={0:04d},ant_dist={1:08.2f}".format(ant_id+1, ant.total_distance)
@@ -70,26 +79,34 @@ class ACO:
 
         self.save_results()
 
-    def plot(self, line_width=1, point_radius=math.sqrt(2.0), annotation_size=8, dpi=120, save=False, name=None):
+    def plot(self, png_file_name="ACO", line_width=1, 
+            point_radius=math.sqrt(2.0), annotation_size=8, 
+            dpi=120, save=True, name=None):
+        '''
+        Plot best tour
+        '''
         x = [self.graph.vertices[i].x for i in self.best_tour]
         x.append(x[0])
         y = [self.graph.vertices[i].y for i in self.best_tour]
         y.append(y[0])
         plt.plot(x, y, linewidth=line_width)
         plt.scatter(x, y, s=math.pi * (point_radius ** 2.0))
-        plt.title("ACO")
+        plt.title(png_file_name)
         for i in self.best_tour:
             plt.annotate(self.graph.vertices[i].index, 
                         (self.graph.vertices[i].x, self.graph.vertices[i].y),
                          size=annotation_size)
         if save:
             if name is None:
-                name = '{0}.png'.format("ACO")
+                name = '{0}.png'.format(png_file_name)
             plt.savefig(name, dpi=dpi)
         plt.show()
         plt.gcf().clear()
 
     def write_data(self, f_name):
+        '''
+        Write best tour to csv file
+        '''
         tour = [self.graph.vertices[i].index for i in self.best_tour]
         with open(f_name, mode='w+') as f:
             for vertex in tour:
