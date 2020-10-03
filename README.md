@@ -9,7 +9,6 @@ __Note__: Repository was tested using Python3.7 and latest packages in requireme
 ```source venv/bin/activate ```
 
 + To install dependencies, run:  
-
 ```pip3 install -r requirements.txt```
 
 + Run the model:  
