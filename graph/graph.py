@@ -41,6 +41,6 @@ class Graph:
         self.vertices = vertices
         self.pheromones = np.ones((self.n, self.n))
         self.weights = np.array(
-                [[dist2D(vertices[i], vertices[j])\
+                [[dist2D(vertices[i], vertices[j]) + 1e-6\
                     for i in range(self.n)]
                         for j in range(self.n)])
