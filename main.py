@@ -8,14 +8,14 @@ while not root_dir.endswith("TSP"):
   root_dir = os.path.dirname(root_dir)
 sys.path.append(root_dir)
 
-from graph.graph import Vertex, Edge, Graph
+from graph.graph import Vertex, Graph
 from aco.aco import ACO
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', type=str,
-                         default="ACO", help="Choose algorithm")
+    parser.add_argument('-mode', type=str,
+                         default="ACO", help="Choose mode")
     parser.add_argument('-p', type=str,
                          default="./data/a280.tsp", 
                          help="path to the input file")
@@ -29,6 +29,8 @@ def parse_arguments():
                          default=3.0, help="visibility weight")
     parser.add_argument('-er', type=float,
                          default=0.2, help="evaporation rate")
+    parser.add_argument('-log', type=bool,
+                         default=True, help="Visualize learning curve")
     args = parser.parse_args()
     return args
 
@@ -71,7 +73,8 @@ def main(args):
                 colony_size=args.cs,
                 a=args.a, b=args.b,
                 evaporation_rate=args.er,
-                iters=args.it)
+                iters=args.it,
+                log=args.log)
         start = time.time()
         aco.run()
         end = time.time()
@@ -80,9 +83,6 @@ def main(args):
         print(f"Elapsed time: {elapsed:.2f}")
         print(f"Best distance by ACO : {aco.best_distance:.2f}")
         aco.plot()
-        # Solutions
-        # if you have optimal/better solution for x.tsp, 
-        # put it in xsol.tsp and visualize using this code 
 
         # f_path = args.p.replace(".tsp", "sol.tsp")
         # best_tour = read_solution(f_path)
@@ -90,6 +90,19 @@ def main(args):
         # best_distance = aco.get_tour_distance(best_tour)
         # print("Best distance :", best_distance)
         # aco.plot()
+    elif args.mode == "Visualize":
+        # Solution
+        aco = ACO(graph=graph,
+                colony_size=args.cs,
+                a=args.a, b=args.b,
+                evaporation_rate=args.er,
+                iters=args.it)
+        f_path = 'solutions/solution.csv'
+        best_tour = read_solution(f_path)
+        aco.best_tour = best_tour
+        best_distance = aco.get_tour_distance(best_tour)
+        print("Best distance :", best_distance)
+        aco.plot()
     else:
         raise NotImplementedError
 

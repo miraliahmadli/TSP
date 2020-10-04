@@ -22,7 +22,7 @@ class ACO:
                 colony_size=10, 
                 a=1.0, b=1.0,
                 evaporation_rate=0.1, 
-                iters=100):
+                iters=100, log=False):
         self.graph = graph
         self.n = self.graph.n
 
@@ -36,6 +36,10 @@ class ACO:
                                 for _ in range(colony_size)]
         self.best_tour = []
         self.best_distance = float("inf")
+
+        self.log = log
+        if self.log:
+            self.best_distances = [] # best distance after each iteration
 
     def get_tour_distance(self, tour):
         '''
@@ -77,11 +81,14 @@ class ACO:
             tqdm_batch.close()
             print(f"Iteration={it+1}, best_dist={self.best_distance}")
 
+            if self.log:
+                self.best_distances.append(self.best_distance)
         self.save_results()
 
-    def plot(self, png_file_name="ACO", line_width=1, 
-            point_radius=math.sqrt(2.0), annotation_size=8, 
-            dpi=120, save=True, name=None):
+        if self.log:
+            self.plot_convergence()
+
+    def plot(self, save=True, name=None):
         '''
         Plot best tour
         '''
@@ -89,17 +96,30 @@ class ACO:
         x.append(x[0])
         y = [self.graph.vertices[i].y for i in self.best_tour]
         y.append(y[0])
-        plt.plot(x, y, linewidth=line_width)
-        plt.scatter(x, y, s=math.pi * (point_radius ** 2.0))
-        plt.title(png_file_name)
+        plt.plot(x, y, linewidth=1)
+        plt.scatter(x, y, s=math.pi * 2)
+        plt.title("Ant Colony Optim")
         for i in self.best_tour:
             plt.annotate(self.graph.vertices[i].index, 
                         (self.graph.vertices[i].x, self.graph.vertices[i].y),
-                         size=annotation_size)
+                         size=8)
         if save:
             if name is None:
-                name = '{0}.png'.format(png_file_name)
-            plt.savefig(name, dpi=dpi)
+                name = '{0}.png'.format("ACO")
+            plt.savefig(name, dpi=120)
+        plt.show()
+        plt.gcf().clear()
+
+    def plot_convergence(self, save=True, name=None):
+        x = [i+1 for i in range(self.iters)]
+        y = self.best_distances
+        plt.plot(x, y, linewidth=1)
+        plt.scatter(x, y, s=math.pi * 2)
+        plt.title("Best distance vs Iteration")
+        if save:
+            if name is None:
+                name = '{0}.png'.format("logs")
+            plt.savefig(name, dpi=120)
         plt.show()
         plt.gcf().clear()
 

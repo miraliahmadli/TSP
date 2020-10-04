@@ -1,7 +1,3 @@
-NAME : rd100.opt.tour
-TYPE : TOUR
-COMMENT : Optimal solution for rd100 (7910)
-TOUR_SECTION
    1  18  62  87  15  63  86  97  67  13
   49  21  75  82  85  14  12   4  32   9
   26  74  20  78   3  33  10  27  92  17
